@@ -1,11 +1,10 @@
 from collections import defaultdict
 from multiprocessing import Pool
+from BeautifulSoup import BeautifulSoup
 import re
 import sys
-
-from BeautifulSoup import BeautifulSoup
-
-teststring = "one two two three three three four four four four"
+import os
+import datetime
 
 def extract_article_body(filename):
     """
@@ -25,8 +24,8 @@ def extract_article_body(filename):
             biblio = [biblio_root]
             biblio.extend(biblio_root.findNextSiblings())
             biblio = [elm.extract() for elm in biblio]
-        else:
-            logging.error('Could not extract bibliography from %s' % filename)
+        #else:
+            #logging.error('Could not extract bibliography from %s' % filename)
 
     # grab modified body 
     body = soup.find("div", id="aueditable")
@@ -36,11 +35,11 @@ def extract_article_body(filename):
     
         return body
     else:
-        logging.error('Could not extract text from %s' % filename)
+        #logging.error('Could not extract text from %s' % filename)
 
         return ''
 
-def wc(string):
+def wordcount(string):
     words = string.split()
     count = defaultdict(int)
     for word in words:
@@ -58,13 +57,37 @@ def reduce(dictlist):
 # 2. actually getting the list of all articles: inpho.corpus.sep.get_titles()
 
 if __name__ == '__main__':
-    filename = sys.argv[-1]
+    entriesDir = sys.argv[-1]
+    dictionaryList = []
 
-    with open(filename) as f:
-        data = f.read()
-    data = extract_article_body(filename)    
-    pool = Pool()
-    results = pool.map(wc, data.split())
-    dicttest = reduce(results)
+    for path, dirs, files in os.walk(entriesDir):
+        for f in files:
+            if f.endswith(".html"):
+                filePath = path + "/" + f
+                data = extract_article_body(filePath)
+            
+                #Threading disabled for my virtual test machine
+                #pool = Pool()
+                #results = pool.map(wordcount, data.split())
 
-    print(dicttest.items())    
+                #Non pooled:
+                results = map(wordcount, data.split())
+
+                subDict = reduce(results)
+                dictionaryList.append(subDict)
+    
+    #data = extract_article_body(filename)    
+    #pool = Pool()
+    #results = pool.map(wordcount, data.split())
+
+    finalDict = reduce(dictionaryList)
+
+    timestamp = str(datetime.datetime.now()) + "\n"
+
+    with open('wc_output.txt', 'a+') as f:
+        f.write(timestamp)
+        f.write("---------------------------\n\n")
+        f.write(str(finalDict.items()))
+        f.write("\n")
+
+    #print(finalDict.items())    
