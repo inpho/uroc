@@ -12,8 +12,9 @@ def extract_article_body(filename):
     error handling is done to guarantee that this function returns at least the
     empty string. Check the error log.
     """
-    f = open(filename)
-    doc = f.read()
+    print filename
+    with open(filename) as f:
+        doc = f.read()
     soup = BeautifulSoup(doc, convertEntities=["xml", "html"])
 
     # rip out bibliography
