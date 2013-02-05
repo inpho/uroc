@@ -14,6 +14,7 @@ for item in string.punctuation:
 word_string.lower()
 
 words = word_string.split()
+words = [element.lower() for element in words]
 print words
 
         
@@ -34,14 +35,9 @@ for i in range(len(stop_words)):
 
 ## goes through words list and removes all stop words
 x = 0
-while x < len(words):
-    if words[x] in stop_words:
-        print x
-        del words[x]
-    print x
-    x += 1
-        
+for word in words[:]:
+    if word in stop_words:
+        words.remove(word)
+   
             
 print words
-
-
