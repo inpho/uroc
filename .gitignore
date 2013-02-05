@@ -1,0 +1,10 @@
+*.pyc
+entries*
+
+## emacs temp files
+*~
+\#*\#
+
+## vim temp files
+.*.swp
+
