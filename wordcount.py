@@ -75,7 +75,16 @@ if __name__ == '__main__':
                 results = map(wordcount, data.split())
 
                 subDict = reduce(results)
+                maxvalue = max(subDict.values())
+
+                tfDict = defaultdict(int)
+
+                for key,value in subDict:
+                    tfDict[key] = value / maxvalue
+                
+                print tfDict.items()
                 dictionaryList.append(subDict)
+                tfList.append(tfDict)
     
     #data = extract_article_body(filename)    
     #pool = Pool()
