@@ -6,6 +6,7 @@ import sys
 import os
 import datetime
 
+# Logging is disabled since it is not available
 def extract_article_body(filename):
     """
     Extracts the article body from the SEP article at the given filename. Some
@@ -14,12 +15,13 @@ def extract_article_body(filename):
     """
     print(filename)
     with open(filename) as f:
-        # Attempting to avoid strange unicode errors
+        # Some files are not properly encoded in UTF-8, this ignores them
         try:
             doc = f.read()
         except UnicodeDecodeError:
             return ''
 
+    # ConvertEntities is not available in BeautifulSoup4 so it has been removed
     soup = BeautifulSoup(doc)
 
     # rip out bibliography
@@ -55,6 +57,7 @@ def wordcount(string):
 def reduce(dictlist):
     count = defaultdict(int)
     for d in dictlist:
+        # iteritems() has been changed to items() in Python 3
         for key,value in d.items():
             count[key] += value
     return count
@@ -66,6 +69,7 @@ if __name__ == '__main__':
     entriesDir = sys.argv[-1]
     dictionaryList = []
 
+    # Limiting the Pool to 4 processes to prevent excess memory usage
     pool = Pool(processes=4)
     for path, dirs, files in os.walk(entriesDir):
         for f in files:
