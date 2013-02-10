@@ -8,3 +8,4 @@ entries*
 ## vim temp files
 .*.swp
 
+py3env
