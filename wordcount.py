@@ -1,6 +1,6 @@
 from collections import defaultdict
 from multiprocessing import Pool
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import re
 import sys
 import os
@@ -12,10 +12,15 @@ def extract_article_body(filename):
     error handling is done to guarantee that this function returns at least the
     empty string. Check the error log.
     """
-    print filename
+    print(filename)
     with open(filename) as f:
-        doc = f.read()
-    soup = BeautifulSoup(doc, convertEntities=["xml", "html"])
+        # Attempting to avoid strange unicode errors
+        try:
+            doc = f.read()
+        except UnicodeDecodeError:
+            return ''
+
+    soup = BeautifulSoup(doc)
 
     # rip out bibliography
     biblio_root = soup.findAll('h2', text='Bibliography')
@@ -50,7 +55,7 @@ def wordcount(string):
 def reduce(dictlist):
     count = defaultdict(int)
     for d in dictlist:
-        for key,value in d.iteritems():
+        for key,value in d.items():
             count[key] += value
     return count
 
@@ -61,35 +66,21 @@ if __name__ == '__main__':
     entriesDir = sys.argv[-1]
     dictionaryList = []
 
+    pool = Pool(processes=4)
     for path, dirs, files in os.walk(entriesDir):
         for f in files:
-            if f.endswith(".html"):
+            if f == "index.html":
                 filePath = path + "/" + f
                 data = extract_article_body(filePath)
-            
-                #Threading disabled for my virtual test machine
-                #pool = Pool()
-                #results = pool.map(wordcount, data.split())
+                            
+                results = pool.map(wordcount, data.split())
 
                 #Non pooled:
-                results = map(wordcount, data.split())
+                #results = map(wordcount, data.split())
 
                 subDict = reduce(results)
-                maxvalue = max(subDict.values())
-
-                tfDict = defaultdict(int)
-
-                for key,value in subDict:
-                    tfDict[key] = value / maxvalue
-                
-                print tfDict.items()
                 dictionaryList.append(subDict)
-                tfList.append(tfDict)
     
-    #data = extract_article_body(filename)    
-    #pool = Pool()
-    #results = pool.map(wordcount, data.split())
-
     finalDict = reduce(dictionaryList)
 
     timestamp = str(datetime.datetime.now()) + "\n"
@@ -99,5 +90,4 @@ if __name__ == '__main__':
         f.write("---------------------------\n\n")
         f.write(str(finalDict.items()))
         f.write("\n")
-
-    #print(finalDict.items())    
+  
