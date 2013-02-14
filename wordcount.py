@@ -71,21 +71,17 @@ if __name__ == '__main__':
 
     # Limiting the Pool to 4 processes to prevent excess memory usage
     pool = Pool(processes=4)
+    articles = []
     for path, dirs, files in os.walk(entriesDir):
         for f in files:
             if f == "index.html":
                 filePath = path + "/" + f
                 data = extract_article_body(filePath)
-                            
-                results = pool.map(wordcount, data.split())
-
-                #Non pooled:
-                #results = map(wordcount, data.split())
-
-                subDict = reduce(results)
-                dictionaryList.append(subDict)
+                articles.append(data)           
     
-    finalDict = reduce(dictionaryList)
+    results = pool.map(wordcount, articles)
+
+    finalDict = reduce(results)
 
     timestamp = str(datetime.datetime.now()) + "\n"
 
