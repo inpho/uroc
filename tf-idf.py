@@ -7,6 +7,7 @@ import sys
 import os
 import datetime
 import math
+import time
 
 # Logging is disabled since it is not available
 def extract_article_body(filename):
@@ -64,20 +65,17 @@ def tf(string):
         wordcount[key] = value/total
     return wordcount
 
-def idf(dictlist):
+def idf(tfDictList):
     """
     Takes a list of defaultdicts and finds the inverse document frequency
     (idf) for every word in every article.  Returns a new defaultdict
     containing each word associated with its idf.
     """
-    numArticles = len(dictlist)
+    numArticles = len(tfDictList)
     articleCount = defaultdict(int)
-    for d in dictlist:
+    for d in tfDictList:
         for key,value in d.items():
-            if articleCount[key] == None:
-                articleCount[key] = 0
-            else:
-                articleCount[key] += 1
+            articleCount[key] += 1
     for key,value in articleCount.items():
         articleCount[key] = math.log10(numArticles / value)
     return articleCount
@@ -107,6 +105,7 @@ def tfidfWordSum(dictlist):
     return count
         
 if __name__ == '__main__':
+    startTime = time.clock()
     entriesDir = sys.argv[-1]
     dictionaryList = []
 
@@ -126,10 +125,13 @@ if __name__ == '__main__':
     
     tfidfSummed = tfidfWordSum(tfidfList)
  
+    # Timing
     timestamp = str(datetime.datetime.now()) + "\n"
+    endTime = time.clock()
+    elapsedTime = str(endTime - startTime) + " seconds \n"
 
     with open('tfidf_output.txt', 'a+') as f:
-        f.write(timestamp)
+        f.write(timestamp + elapsedTime)
         f.write("---------------------------\n\n")
         for key,value in sorted(tfidfSummed.items(), key=lambda x:x[1], reverse=True):
             line = key + " , " + str(value) + "\n"
