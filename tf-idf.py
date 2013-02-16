@@ -50,6 +50,10 @@ def extract_article_body(filename):
         return ''
 
 def tf(string):
+    """
+    Takes the extracted article body as input and returns a defaultdict
+    containing each word in the article associated with its term frequency.
+    """
     total = 0
     words = string.split()
     wordcount = defaultdict(int)
@@ -61,6 +65,11 @@ def tf(string):
     return wordcount
 
 def idf(dictlist):
+    """
+    Takes a list of defaultdicts and finds the inverse document frequency
+    (idf) for every word in every article.  Returns a new defaultdict
+    containing each word associated with its idf.
+    """
     numArticles = len(dictlist)
     articleCount = defaultdict(int)
     for d in dictlist:
@@ -74,19 +83,33 @@ def idf(dictlist):
     return articleCount
 
 def tfidf(idfDict, tfDictList):
+    """
+    Takes the defaultdict outputted by idf and the list of tf defaultdicts.
+    Returns a new list of defaultdicts containing word/tfidf associations for
+    each article.
+    """
     tfidfList = []
     for article in tfDictList:
         for key,value in article.items():
             article[key] = idfDict[key] * value
         tfidfList.append(article)
     return tfidfList
+
+def tfidfWordSum(dictlist):
+    """
+    Takes the list of tfidf defaultdicts outputted by tfidf and returns a
+    single defaultdict of words associated with their summed tfidf values.
+    """
+    count = defaultdict(int)
+    for d in dictlist:
+        for key,value in d.items():
+            count[key] += value
+    return count
         
 if __name__ == '__main__':
     entriesDir = sys.argv[-1]
     dictionaryList = []
 
-    # Limiting the Pool to 4 processes to prevent excess memory usage
-    # pool = Pool(processes=4)
     articles = []
     for path, dirs, files in os.walk(entriesDir):
         for f in files:
@@ -95,21 +118,19 @@ if __name__ == '__main__':
                 data = extract_article_body(filePath)
                 
                 articles.append(data)
-                
-
-                
-    
+                    
     tfResults = list(map(tf, articles))
     idfResults = idf(tfResults)
 
     tfidfList = tfidf(idfResults, tfResults)
-
+    
+    tfidfSummed = tfidfWordSum(tfidfList)
+ 
     timestamp = str(datetime.datetime.now()) + "\n"
 
     with open('tfidf_output.txt', 'a+') as f:
         f.write(timestamp)
         f.write("---------------------------\n\n")
-        for d in tfidfList:
-            f.write(str(d.items()))
-        f.write("\n")
-  
+        for key,value in sorted(tfidfSummed.items(), key=lambda x:x[1], reverse=True):
+            line = key + " , " + str(value) + "\n"
+            f.write(line)
