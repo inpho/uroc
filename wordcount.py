@@ -5,6 +5,7 @@ import re
 import sys
 import os
 import datetime
+import time
 
 # Logging is disabled since it is not available
 def extract_article_body(filename):
@@ -48,6 +49,10 @@ def extract_article_body(filename):
         return ''
 
 def wordcount(string):
+    """
+    Takes a string as input and returns a defaultdict containing each word
+    in the string associated with the number of times it occurs in the string.
+    """
     words = string.split()
     count = defaultdict(int)
     for word in words:
@@ -55,9 +60,13 @@ def wordcount(string):
     return count
 
 def reduce(dictlist):
+    """
+    Takes a list of defaultdicts as input and returns a single defaultdict
+    containing each word in the entireity of the corpus associated with the
+    number of times each word occurs in the corpus.
+    """
     count = defaultdict(int)
     for d in dictlist:
-        # iteritems() has been changed to items() in Python 3
         for key,value in d.items():
             count[key] += value
     return count
@@ -67,6 +76,9 @@ def reduce(dictlist):
 
 if __name__ == '__main__':
     entriesDir = sys.argv[-1]
+
+    #Start timing
+    startTime = time.clock()    
     dictionaryList = []
 
     # Limiting the Pool to 4 processes to prevent excess memory usage
@@ -83,11 +95,15 @@ if __name__ == '__main__':
 
     finalDict = reduce(results)
 
-    timestamp = str(datetime.datetime.now()) + "\n"
+    # Finish timing
+    endTime = time.clock()
+    timestamp = str(datetime.datetime.now()) + "\n"   
+    elapsedTime = str(endTime - startTime) + " seconds \n"
 
     with open('wc_output.txt', 'a+') as f:
-        f.write(timestamp)
+        f.write(timestamp + elapsedTime)
         f.write("---------------------------\n\n")
-        f.write(str(finalDict.items()))
-        f.write("\n")
+        for key,value in sorted(finalDict.items(), key=lambda x:x[1], reverse=True):
+            line = key + " , " + str(value) + "\n"
+            f.write(line)
   
