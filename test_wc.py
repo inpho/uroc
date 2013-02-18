@@ -76,9 +76,11 @@ class wcKnownCounts(unittest.TestCase):
         for string in self.theTwentyFive:
             theList.append(wordcount.wordcount(string))
 
+        emptyCount = wordcount.wordcount(self.emptyString)
         wcBulkDict = wordcount.reduce(articleList)
         wcTheDict = wordcount.reduce(theList)
 
+        self.assertEqual(sum(emptyCount.values()), 0)
         self.assertEqual(sum(wcBulkDict.values()), 65)
         self.assertEqual(sum(wcTheDict.values()), 25)
             
