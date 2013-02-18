@@ -1,4 +1,4 @@
-# Unit test for tf-idf.py
+# Unit tests for tfidf.py
 
 import tfidf
 import unittest
@@ -39,6 +39,10 @@ class tfKnownStrings(unittest.TestCase):
         self.assertEqual(len(tfDict), 1)
 
     def testKnownTF(self):
+        """
+        Testing to see if the term frequencies for words match up with manual
+        tf calculations.
+        """
         tfDict = tfidf.tf(self.string1)
         self.assertEqual(tfDict["meditation"], (1/19))
 
@@ -78,6 +82,10 @@ class idfKnownDictList(unittest.TestCase):
         theList.append(tfidf.tf(string))
 
     def testKnownIDF(self):
+        """
+        Testing to see whether or not the inverse document frequencies match
+        up with manually calculated idf values for arbitrarily selected words.
+        """
         idfDict = tfidf.idf(self.articleList)
 
         self.assertEqual(idfDict["the"], math.log10(6/3))
@@ -103,6 +111,10 @@ class tfidfKnownValues(unittest.TestCase):
     theTwentyFive = [string5, string5, string5, string5, string5]
     
     def testArticleOrder(self):
+        """
+        Testing to see whether the articles in the articleList retain their
+        order.  This is the order that they will be in for testKnownTFIDF.
+        """
         articleList = []
 
         for string in self.strings:
@@ -115,6 +127,10 @@ class tfidfKnownValues(unittest.TestCase):
         self.assertEqual(articleList[5]["the"], (5/5))
 
     def testKnownTFIDF(self):
+        """
+        Testing to see whether the tfidf values for arbitrarily selected words 
+        in the articles correspond with manually calculated values.
+        """
         articleList = []
         theList = []
 
@@ -133,7 +149,7 @@ class tfidfKnownValues(unittest.TestCase):
         self.assertEqual(tfidfArtList[1]["Meditation"], math.log10(6/1) * (1/19))
         self.assertEqual(tfidfArtList[2]["books"], math.log10(6/1) * (1/18))
         self.assertEqual(tfidfArtList[5]["the"], math.log10(6/3) * (5/5))
-        
+
         self.assertEqual(tfidfTheList[3]["the"], math.log10(5/5) * (5/5))
         
 
