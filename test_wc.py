@@ -15,6 +15,7 @@ class wcKnownCounts(unittest.TestCase):
     string5 = "the the the the the"
 
     strings = [emptyString, string1, string2, string3, string4, string5]
+    theTwentyFive = [string5, string5, string5, string5, string5]
 
     def testCount(self):
         """
@@ -61,6 +62,26 @@ class wcKnownCounts(unittest.TestCase):
         self.assertEqual(wcBulkDict["you"], 3)
         self.assertEqual(wcBulkDict["to"], 4)
         self.assertEqual(wcBulkDict["be"], 3)
+
+    def testTotalCount(self):
+        """
+        Testing to see if the reduce function returns an accurate count of the
+        total number of words in all articles.
+        """
+        articleList = []
+        for string in self.strings:
+            articleList.append(wordcount.wordcount(string))
+
+        theList = []
+        for string in self.theTwentyFive:
+            theList.append(wordcount.wordcount(string))
+
+        wcBulkDict = wordcount.reduce(articleList)
+        wcTheDict = wordcount.reduce(theList)
+
+        self.assertEqual(sum(wcBulkDict.values()), 65)
+        self.assertEqual(sum(wcTheDict.values()), 25)
+            
 
         
 if __name__ == '__main__':
